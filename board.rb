@@ -12,8 +12,10 @@ class Board
 
   def initialize
     @grid = self.class.make_grid
+    self.initial_piece_placements
   end
 
+  #setups board with pieces in their starting positions
   def initial_piece_placements
     self.grid.each_with_index do |row, row_idx|
       row.each_with_index do |cell, cell_idx|
@@ -30,12 +32,12 @@ class Board
   end
 
   def []=(pos, piece)
-    x, y = pos[0], pos[1]
+    x, y = pos
     @grid[x][y] = piece
   end
 
   def [](pos)
-    x, y = pos[0], pos[1]
+    x, y = pos
     @grid[x][y]
   end
 
@@ -43,9 +45,11 @@ class Board
     #counter used as an index for tile colors
     counter = 0
 
+    #axis labels
     alpha = ("A".."H").to_a
     puts "   0  1  2  3  4  5  6  7"
 
+    #render tiles and pieces on board
     self.grid.each do |row|
       print "#{alpha.shift} "
       row.each do |cell|
@@ -65,14 +69,25 @@ class Board
 
   #returns whether pos is on board
   def on_board?(pos)
-    [pos[0], pos[1]].all? {|coord| coord >= 0 && coord < SIZE}
+    pos.all? {|coord| coord.between?(0, SIZE - 1)}
   end
 
   #returns whether pos has piece
   def has_piece?(pos)
-    x = self[pos].is_a?(Piece)
-    puts x
-    x
+    self[pos].is_a?(Piece)
+  end
+
+  def move(from_pos, to_pos)
+    raise 'move not on board' if !on_board?(to_pos)
+
+    self[from_pos].update_position(to_pos) if has_piece?(from_pos)
+                                              #self[from_pos].nil?
+    self[to_pos].update_position(from_pos) if has_piece?(to_pos)
+                                              #self[to_pos].nil?
+    self[from_pos], self[to_pos] = self[to_pos], self[from_pos]
+
+    self[to_pos].king_check
+    nil
   end
 
   ###EVERYTHING BELOW IS FOR TESTING####
@@ -80,32 +95,39 @@ class Board
     self[pos] = piece
   end
 
-  def move(from_pos, to_pos)
-    raise 'move not on board' if !on_board?(to_pos)
 
-    self[from_pos].update_position(to_pos) unless self[from_pos].nil?
-    self[to_pos].update_position(from_pos) unless self[to_pos].nil?
-
-    self[from_pos], self[to_pos] = self[to_pos], self[from_pos]
-
-    self[to_pos].king_check
-    nil
-  end
 
 
 end
 
 if __FILE__ == $PROGRAM_NAME
   b = Board.new
-  b.initial_piece_placements
-  piece = b[[2,0]]
-  piece.perform_slide([3,1])
-  piece2 = b[[5,3]]
-  piece2.perform_slide([4,2])
+  piece = b[[2,2]]
+  piece2 = b[[5,5]]
   b.render
-  piece.perform_jump([5,3])
+  piece.perform_moves!("C2 D3")
   b.render
-  piece3 = b[[6,4]]
-  piece3.perform_jump([4,2])
+  piece2.perform_moves!("F5 E6")
+  piece.perform_moves!("D3 E2")
+  piece3 = b[[2,6]]
+  piece3.perform_moves!("C6 D7")
+  piece4 = b[[1,5]]
+  piece4.perform_moves!("B5 C6")
+  piece5 = b[[5,1]]
+  piece5.perform_moves!("F1 D3 B5")
   b.render
+#
+#   piece2.perform_moves!("F5 E4")
+#   b.render
+#   piece.perform_moves!("D3 F5")
+#   b.render
+
+  # piece2 = b[[5,3]]
+#   piece2.perform_slide([4,2])
+#   b.render
+#   piece.perform_jump([5,3])
+#   b.render
+#   piece3 = b[[6,4]]
+#   piece3.perform_jump([4,2])
+#   b.render
 end
