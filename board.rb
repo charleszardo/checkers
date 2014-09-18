@@ -70,7 +70,9 @@ class Board
 
   #returns whether pos has piece
   def has_piece?(pos)
-    self[pos].is_a?(Piece)
+    x = self[pos].is_a?(Piece)
+    puts x
+    x
   end
 
   ###EVERYTHING BELOW IS FOR TESTING####
@@ -79,17 +81,31 @@ class Board
   end
 
   def move(from_pos, to_pos)
+    raise 'move not on board' if !on_board?(to_pos)
+
+    self[from_pos].update_position(to_pos) unless self[from_pos].nil?
+    self[to_pos].update_position(from_pos) unless self[to_pos].nil?
+
     self[from_pos], self[to_pos] = self[to_pos], self[from_pos]
+
+    self[to_pos].king_check
+    nil
   end
+
 
 end
 
 if __FILE__ == $PROGRAM_NAME
   b = Board.new
   b.initial_piece_placements
+  piece = b[[2,0]]
+  piece.perform_slide([3,1])
+  piece2 = b[[5,3]]
+  piece2.perform_slide([4,2])
   b.render
-
-  b.move([0,2], [4,5])
+  piece.perform_jump([5,3])
   b.render
-
+  piece3 = b[[6,4]]
+  piece3.perform_jump([4,2])
+  b.render
 end
