@@ -9,7 +9,5 @@ class HumanPlayer
     name = self.color.to_s.capitalize
     puts "#{name}, make your move."
     gets.chomp
-
-
   end
 end
