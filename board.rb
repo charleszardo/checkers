@@ -4,6 +4,8 @@ require 'colorize'
 class Board
   SIZE = 8
 
+  attr_reader :winner
+
   attr_accessor :grid
 
   def self.make_grid
@@ -13,9 +15,21 @@ class Board
   def initialize
     @grid = self.class.make_grid
     self.initial_piece_placements
+    @winner = nil
   end
 
-  #setups board with pieces in their starting positions
+  def dup
+    duped_board = Board.new
+    duped_board.clear_board
+
+    self.grid.flatten.compact.each do |piece|
+      duped_board[piece.pos] = piece.dup(duped_board)
+    end
+
+    duped_board
+  end
+
+  #sets up board with pieces in their starting positions
   def initial_piece_placements
     self.grid.each_with_index do |row, row_idx|
       row.each_with_index do |cell, cell_idx|
@@ -47,21 +61,24 @@ class Board
 
     #axis labels
     alpha = ("A".."H").to_a
-    puts "   0  1  2  3  4  5  6  7"
+    puts "    0  1  2  3  4  5  6  7"
 
     #render tiles and pieces on board
     self.grid.each do |row|
-      print "#{alpha.shift} "
+      letter = " #{alpha.shift} "
+      print letter
       row.each do |cell|
         tile = cell.is_a?(Piece) ? " #{cell.render} " : "   "
 
         print counter.even? ? tile : tile.on_white
         counter += 1
       end
+      print letter
       counter += 1
       print "\n"
 
     end
+    puts "    0  1  2  3  4  5  6  7"
     print "\n"
 
     nil
@@ -90,44 +107,29 @@ class Board
     nil
   end
 
+  def game_over?
+    pieces = self.grid.flatten.compact
+    if pieces.each.all? {|piece| piece.color == :white}
+      self.winner = :white
+      return true
+    elsif pieces.each.all? {|piece| piece.color == :black}
+      self.winner = :black
+      return true
+    else
+      false
+    end
+  end
+
   ###EVERYTHING BELOW IS FOR TESTING####
   def place_piece(piece, pos)
     self[pos] = piece
   end
 
+  ######################################
+  protected
 
+  def clear_board
+    self.grid = Array.new(SIZE) { Array.new(SIZE) }
+  end
 
-
-end
-
-if __FILE__ == $PROGRAM_NAME
-  b = Board.new
-  piece = b[[2,2]]
-  piece2 = b[[5,5]]
-  b.render
-  piece.perform_moves!("C2 D3")
-  b.render
-  piece2.perform_moves!("F5 E6")
-  piece.perform_moves!("D3 E2")
-  piece3 = b[[2,6]]
-  piece3.perform_moves!("C6 D7")
-  piece4 = b[[1,5]]
-  piece4.perform_moves!("B5 C6")
-  piece5 = b[[5,1]]
-  piece5.perform_moves!("F1 D3 B5")
-  b.render
-#
-#   piece2.perform_moves!("F5 E4")
-#   b.render
-#   piece.perform_moves!("D3 F5")
-#   b.render
-
-  # piece2 = b[[5,3]]
-#   piece2.perform_slide([4,2])
-#   b.render
-#   piece.perform_jump([5,3])
-#   b.render
-#   piece3 = b[[6,4]]
-#   piece3.perform_jump([4,2])
-#   b.render
 end

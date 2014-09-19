@@ -5,9 +5,12 @@ class Piece
   attr_reader :king, :color, :pos, :board
   attr_accessor :pos
 
-  def initialize(board, pos, color)
-    @board, @pos, @color = board, pos, color
-    @king = false
+  def initialize(board, pos, color, king = false)
+    @board, @pos, @color, @king = board, pos, color, king
+  end
+
+  def dup(board)
+    Piece.new(board, self.pos, self.color, self.king)
   end
 
   def symbols
