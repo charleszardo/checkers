@@ -50,11 +50,15 @@ class Piece
 
   def valid_move_sequence(sequence)
     perform_moves!
+    begin
+    rescue
+      false
+    else
+      true
+    end
   end
 
   def perform_moves!(moves)
-    moves = moves.split(' ')
-    moves = moves.map {|move| move_conversion(move)}
     slides = 0
     current_tile = moves.shift
     until moves.empty?
@@ -68,15 +72,6 @@ class Piece
       end
       current_tile = current_move
     end
-  end
-
-  #converts user input format to coordinates (e.g. 'A5' to [0,5])
-  def move_conversion(move)
-    alpha = ("a".."h").to_a
-    move = move.split('')
-    x = alpha.index(move[0].downcase)
-    y = move[1].to_i
-    [x, y]
   end
 
   def perform_slide(pos)
