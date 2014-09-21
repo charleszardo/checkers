@@ -10,4 +10,5 @@ class HumanPlayer
     puts "#{name}, make your move."
     gets.chomp
   end
+
 end

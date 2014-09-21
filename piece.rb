@@ -58,7 +58,7 @@ class Piece
     slides = 0
     current_tile = moves.shift
     until moves.empty?
-      raise "can't do multiple slides!" if slides >= 1
+      raise InvalidMoveError.new "can't do multiple slides!" if slides >= 1
       current_move = moves.shift unless moves.empty?
       if self.legal_slide?(current_move)
         self.perform_slide(current_move)

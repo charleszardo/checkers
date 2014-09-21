@@ -78,9 +78,9 @@ class Board
       print "\n"
 
     end
-    puts "    0  1  2  3  4  5  6  7"
-    print "\n"
-
+    puts "    0  1  2  3  4  5  6  7\n"
+    puts ""
+    puts "Move format: C0 D1\n"
     nil
   end
 
