@@ -36,13 +36,17 @@ class Game
     piece = move_seq_arr[0]
     raise "that's not your piece" if self.board[piece].color != current_player.color
 
-    #self.board[move_seq_
-    self.board[piece].perform_moves!(move_seq_arr)
+    if self.board[piece].valid_move_seq?(move_seq_arr)
+
+    else
+      raise InvalidMoveError.new "invalid move sequence"
+    end
+    #self.board[piece].perform_moves!(move_seq_arr)
   rescue StandardError => e
     puts "Error: #{e.message}"
     print "\n"
     retry
-
+  else
     self.game_over = self.board.game_over?
   end
 

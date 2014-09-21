@@ -48,23 +48,27 @@ class Piece
     end
   end
 
-  def valid_move_sequence(sequence)
-    perform_moves!
+  def valid_move_seq?(sequence)
+    dup_board = self.board.dup
+    perform_moves!(sequence, self.board.dup)
     begin
     rescue
-      false
+      return false
     else
-      true
+      return true
     end
   end
 
-  def perform_moves!(moves)
+  def perform_moves!(moves, board)
     slides = 0
+    jumps = 0
     current_tile = moves.shift
     until moves.empty?
       raise InvalidMoveError.new "can't do multiple slides!" if slides >= 1
       current_move = moves.shift unless moves.empty?
+      raise InvalidMoveError.new "that's not in your range of moves!" unless move_diffs.include?(current_move)
       if self.legal_slide?(current_move)
+        raise InvalidMoveError.new "can't slide after a jump" if jumps > 0
         self.perform_slide(current_move)
         slides += 1
       else
@@ -76,7 +80,6 @@ class Piece
 
   def perform_slide(pos)
     raise "there's a piece there!" if self.board.has_piece?(pos)
-    raise "that's not in your range of moves!" unless move_diffs.include?(pos)
     self.board.move(self.pos, pos) if legal_slide?(pos)
   end
 
@@ -92,7 +95,9 @@ class Piece
   end
 
   def legal_jump?(pos, mid)
-    self.board.has_piece?(mid) && self.board[mid].color != self.color
+    raise "no piece to jump" if !self.board.has_piece?(mid)
+    raise "can't jump your own piece" if self.board[mid].color == self.color
+    true
   end
 
   def find_mid_piece(start, final)
